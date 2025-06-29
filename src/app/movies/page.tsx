@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import All from "../All/page";
 import Hollywood from "../Hollywood/page";
