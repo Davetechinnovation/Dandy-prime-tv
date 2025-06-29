@@ -5,7 +5,7 @@ import { Menu} from 'lucide-react'
 const Section = () => {
   return (
     <div>
-      <nav className="z-50 fixed top-0 left-0 w-[100%] bg-black border-b border-b-blue-700 text-white sm:px-6 px-3 py-3 flex  items-center justify-between gap-3 ">
+      <nav className="z-50 fixed top-0 left-0 w-[100%] bg-black border-b border-b-blue-700 text-white sm:px-6 px-3 sm:py-3 py-6 flex  items-center justify-between gap-3 ">
         <Link href="/">
           <h1 className="sm:text-[29px] text-[24px] font-extrabold ">
             <span>Dandy</span> <span className="text-blue-700">Prime</span>

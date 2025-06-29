@@ -5,11 +5,11 @@ import { Star } from "lucide-react";
 const Newrelease = () => {
   return (
     <div>
-      <div className="text-white -translate-y-10 sm:px-5 px-1 ">
+      <div className="text-white -translate-y-10 sm:px-5 px-2">
         <h2 className="sm:text-[30px] text-[23px] font-semibold py-4 ">
           New Release
         </h2>
-        <div className=" px-2 grid grid-cols-3 md:grid-cols-6 gap-5 ">
+        <div className=" px-2 grid grid-cols-3 md:grid-cols-6 gap-3 ">
           <div className="">
             <Image
               src="/images/sinners.webp"

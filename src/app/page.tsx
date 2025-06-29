@@ -15,7 +15,7 @@ const images = [
     year: "2025",
     rating: "7.5 (668 votes)",
     lang: "EN",
-    desc: "Description of the movie This means: if no one replies after 5s, we give the 7th one a chance. 🧪 Real-World Example Setup First",
+    desc: "Description of the movie This means: if no one replies after 5s, we give the "
   },
   {
     src: "/images/28years.jpg",
@@ -24,7 +24,7 @@ const images = [
     year: "2025",
     rating: "7.5 (668 votes)",
     lang: "EN",
-    desc: "Description of the movie This means: if no one replies after 5s, we give the 7th one a chance. 🧪 Real-World Example Setup First",
+    desc: "Description of the movie This means: if no one replies after 5s, we give the ",
   },
 ];
 
@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <div className="bg-black min-h-[200dvh] overflow-x-auto min-w-[320px] ">
-      <div className="relative w-full h-[90vh]">
+      <div className="relative w-full sm:h-[90vh] h-[55vh] ">
         <AnimatePresence initial={false}>
           <motion.div
             key={index}
@@ -61,7 +61,7 @@ export default function Home() {
                   priority
                 />
                 <div className="absolute bottom-0 left-0 w-full h-full bg-black/[30%] flex items-end">
-                  <div className="text-white sm:px-10 px-3 pb-8 flex flex-col gap-3  ">
+                  <div className="text-white sm:px-10 px-3 pb-4 flex flex-col gap-3  ">
                     <h1 className="sm:text-[50px] text-[30px] font-bold ">
                       {images[index].title}
                     </h1>
