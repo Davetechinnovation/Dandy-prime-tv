@@ -29,7 +29,7 @@ export default function Home() {
         const res = await fetch("/api/home/hero");
         const data = await res.json();
         setMovies(data);
-      } catch (e) {
+      } catch {
         setMovies([]);
       } finally {
         setLoading(false);

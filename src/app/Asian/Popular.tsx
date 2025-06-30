@@ -17,7 +17,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const PAGE_SIZE = 20;
 
 const Popular = () => {
-  const { data, error, setSize, isValidating } = useSWRInfinite(
+  const { data, setSize, isValidating } = useSWRInfinite(
     (index) => `/api/home/asian?page=${index + 1}`,
     fetcher,
     {
