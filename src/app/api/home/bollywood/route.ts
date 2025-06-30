@@ -1,3 +1,3 @@
-export async function GET(req: Request) {
-  return new Response("Not implemented", { status: 501 });
+export async function GET(request: Request) {
+  return new Response('Not implemented', { status: 501 });
 }
