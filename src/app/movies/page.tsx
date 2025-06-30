@@ -1,74 +1,86 @@
 "use client";
+
 import React, { useState } from "react";
-import All from "../All/page";
-import Hollywood from "../Hollywood/page";
-import Bollywood from "../Bollywood/page";
-import Asian from "../Asian/page";
-import Nollywood from "../Nollywood/page";
+import useSWR from "swr";
+import dynamic from "next/dynamic";
+
+const All = dynamic(() => import("../All/page"), { ssr: false });
+const Hollywood = dynamic(() => import("../Hollywood/page"), { ssr: false });
+const Bollywood = dynamic(() => import("../Bollywood/page"), { ssr: false });
+const Asian = dynamic(() => import("../Asian/page"), { ssr: false });
+const Nollywood = dynamic(() => import("../Nollywood/page"), { ssr: false });
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+function AllTab() {
+  const { data, error, isLoading } = useSWR("/api/home/all", fetcher);
+  if (isLoading) return <div className="text-white">Loading...</div>;
+  if (error) return <div className="text-red-500">Failed to load</div>;
+  // You can pass data to your All component or render here
+  // return <All data={data} />;
+  return <All />;
+}
+
+function HollywoodTab() {
+  // You can implement SWR for Hollywood if needed
+  return <Hollywood />;
+}
+
+function BollywoodTab() {
+  // You can implement SWR for Bollywood if needed
+  return <Bollywood />;
+}
+
+function AsianTab() {
+  const { data, error, isLoading } = useSWR("/api/home/asian", fetcher);
+  if (isLoading) return <div className="text-white">Loading...</div>;
+  if (error) return <div className="text-red-500">Failed to load</div>;
+  return <Asian newReleases={data?.newReleases || []} />;
+}
+
+function NollywoodTab() {
+  // You can implement SWR for Nollywood if needed
+  return <Nollywood />;
+}
 
 const Page = () => {
   const [activeTab, setActiveTab] = useState("All");
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "Hollywood":
-        return <Hollywood />;
-      case "Bollywood":
-        return <Bollywood />;
-      case "Asian":
-        return <Asian />;
-      case "Nollywood":
-        return <Nollywood />;
-      default:
-        return <All />;
-    }
-  };
+  const tabs = ["All", "Hollywood", "Bollywood", "Asian", "Nollywood"];
 
   return (
     <div>
       <div className="overflow-x-auto scrollbar-non text-white flex justify-between py-5 px-2 sm:p-5 sm:px-20 gap-5">
-        <button
-          className={`border-2 border-blue-700 rounded-full px-3 cursor-pointer hover:bg-blue-700 focus:bg-blue-700 duration-500 transition-all ${
-            activeTab === "All" ? "bg-blue-700" : ""
-          }`}
-          onClick={() => setActiveTab("All")}
-        >
-          All
-        </button>
-        <button
-          className={`border-2 border-blue-700 rounded-full px-3 cursor-pointer hover:bg-blue-700 focus:bg-blue-700 duration-500 transition-all ${
-            activeTab === "Hollywood" ? "bg-blue-700" : ""
-          }`}
-          onClick={() => setActiveTab("Hollywood")}
-        >
-          Hollywood
-        </button>
-        <button
-          className={`border-2 border-blue-700 rounded-full px-3 cursor-pointer hover:bg-blue-700 focus:bg-blue-700 duration-500 transition-all ${
-            activeTab === "Bollywood" ? "bg-blue-700" : ""
-          }`}
-          onClick={() => setActiveTab("Bollywood")}
-        >
-          Bollywood
-        </button>
-        <button
-          className={`border-2 border-blue-700 rounded-full px-3 cursor-pointer hover:bg-blue-700 focus:bg-blue-700 duration-500 transition-all ${
-            activeTab === "Asian" ? "bg-blue-700" : ""
-          }`}
-          onClick={() => setActiveTab("Asian")}
-        >
-          Asian
-        </button>
-        <button
-          className={`border-2 border-blue-700 rounded-full px-3 cursor-pointer hover:bg-blue-700 focus:bg-blue-700 duration-500 transition-all ${
-            activeTab === "Nollywood" ? "bg-blue-700" : ""
-          }`}
-          onClick={() => setActiveTab("Nollywood")}
-        >
-          Nollywood
-        </button>
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            className={`border-2 border-blue-700 rounded-full px-3 cursor-pointer hover:bg-blue-700 focus:bg-blue-700 duration-500 transition-all ${
+              activeTab === tab ? "bg-blue-700" : ""
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
-      <div className="mt-6">{renderContent()}</div>
+
+      <div className="mt-6">
+        <div style={{ display: activeTab === "All" ? "block" : "none" }}>
+          <AllTab />
+        </div>
+        <div style={{ display: activeTab === "Hollywood" ? "block" : "none" }}>
+          <HollywoodTab />
+        </div>
+        <div style={{ display: activeTab === "Bollywood" ? "block" : "none" }}>
+          <BollywoodTab />
+        </div>
+        <div style={{ display: activeTab === "Asian" ? "block" : "none" }}>
+          <AsianTab />
+        </div>
+        <div style={{ display: activeTab === "Nollywood" ? "block" : "none" }}>
+          <NollywoodTab />
+        </div>
+      </div>
     </div>
   );
 };

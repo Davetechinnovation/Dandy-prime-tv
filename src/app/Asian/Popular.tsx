@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import useSWR from "swr";
+import React, { useRef, useCallback } from "react";
+import useSWRInfinite from "swr/infinite";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
@@ -14,34 +14,54 @@ type Movie = {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const Toprated = () => {
+const PAGE_SIZE = 20;
 
-  const { data, error, isLoading } = useSWR("/api/home/asian", fetcher);
-  // Deduplicate movies by id
-  const topRatedRaw: Movie[] = data?.topRated || [];
-  const seen = new Set<number>();
-  const topRated: Movie[] = topRatedRaw.filter((movie) => {
-    if (seen.has(movie.id)) return false;
-    seen.add(movie.id);
-    return true;
-  });
+const Popular = () => {
+  const { data, error, size, setSize, isValidating } = useSWRInfinite(
+    (index) => `/api/home/asian?page=${index + 1}`,
+    fetcher,
+    {
+      revalidateFirstPage: false,
+    }
+  );
 
-  if (isLoading) return <div className="text-white">Loading...</div>;
-  if (error) return <div className="text-red-500">Failed to load</div>;
+  const movies: Movie[] = data
+    ? data.flatMap((page) => page.popular || [])
+    : [];
+  const isLoading = !data && !error;
+  const isReachingEnd =
+    data && data[data.length - 1]?.popular?.length < PAGE_SIZE;
+
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  // Infinite scroll observer
+  React.useEffect(() => {
+    if (!loaderRef.current || isReachingEnd) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isValidating) {
+          setSize((s) => s + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [isValidating, setSize, isReachingEnd]);
 
   return (
     <div>
-      <div className="text-white pb-10 lg:pb-0 -translate-y-10 sm:px-5 px-3 ">
+      <div className="text-white -translate-y-10 sm:px-5 px-2 ">
         <h2 className="sm:text-[30px] text-[23px] font-semibold py-4 ">
-          Top Rated
+          Popular
         </h2>
         <div className="px-2 grid grid-cols-3 md:grid-cols-6 gap-3 ">
-          {topRated.length === 0 && (
+          {movies.length === 0 && (
             <div className="col-span-3 md:col-span-6 text-center text-gray-400 py-8">
-              No top rated movies found.
+              No popular movies found.
             </div>
           )}
-          {topRated.map((movie) => (
+          {movies.map((movie) => (
             <div key={movie.id} className="">
               <Image
                 src={movie.image || "/images/sinners.webp"}
@@ -68,9 +88,17 @@ const Toprated = () => {
             </div>
           ))}
         </div>
+        <div ref={loaderRef} className="w-full flex justify-center py-4">
+          {isValidating && (
+            <span className="text-blue-400">Loading more...</span>
+          )}
+          {isReachingEnd && (
+            <span className="text-gray-400">No more movies.</span>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Toprated;
+export default Popular;
