@@ -16,8 +16,6 @@ function AllTab() {
   const { error, isLoading } = useSWR("/api/home/all", fetcher);
   if (isLoading) return <div className="text-white">Loading...</div>;
   if (error) return <div className="text-red-500">Failed to load</div>;
-  // You can pass data to your All component or render here
-  // return <All data={data} />;
   return <All />;
 }
 
@@ -32,7 +30,7 @@ function BollywoodTab() {
 }
 
 function AsianTab() {
-  const { data, error, isLoading } = useSWR("/api/home/asian", fetcher);
+  const { error, isLoading } = useSWR("/api/home/asian", fetcher);
   if (isLoading) return <div className="text-white">Loading...</div>;
   if (error) return <div className="text-red-500">Failed to load</div>;
   return <Asian />;
