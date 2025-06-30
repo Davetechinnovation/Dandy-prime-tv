@@ -35,7 +35,7 @@ function AsianTab() {
   const { data, error, isLoading } = useSWR("/api/home/asian", fetcher);
   if (isLoading) return <div className="text-white">Loading...</div>;
   if (error) return <div className="text-red-500">Failed to load</div>;
-  return <Asian newReleases={data?.newReleases || []} />;
+  return <Asian />;
 }
 
 function NollywoodTab() {
