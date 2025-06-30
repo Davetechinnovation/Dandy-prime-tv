@@ -67,7 +67,7 @@ const Popular = () => {
                 alt={movie.title}
                 width={200}
                 height={100}
-                className="w-full h-[25vh] rounded-t-lg object-cover "
+                className="w-full sm:h-[25vh] h-[19vh] rounded-t-lg object-cover "
                 loading="lazy"
                 placeholder="blur"
                 blurDataURL="/images/sinners.webp"
