@@ -4,7 +4,17 @@ import redis from "@/lib/redis";
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
-function mapMovie(movie: any) {
+interface Movie {
+  id: number;
+  title?: string;
+  name?: string;
+  backdrop_path?: string;
+  release_date?: string;
+  first_air_date?: string;
+  vote_average?: number;
+}
+
+function mapMovie(movie: Movie) {
   return {
     id: movie.id,
     title: movie.title || movie.name || "",
@@ -22,8 +32,8 @@ function mapMovie(movie: any) {
 
 export async function GET(req: Request) {
   // 1. Top Rated (cache 1 hour)
-  let topRatedRaw = await redis.get("all:topRated");
-  let topRated: any[];
+  const topRatedRaw = await redis.get("all:topRated");
+  let topRated: Movie[];
   if (topRatedRaw) {
     topRated = JSON.parse(topRatedRaw);
   } else {
@@ -42,8 +52,8 @@ export async function GET(req: Request) {
   }
 
   // 2. New Releases (cache 1 hour)
-  let newReleasesRaw = await redis.get("all:newReleases");
-  let newReleases: any[];
+  const newReleasesRaw = await redis.get("all:newReleases");
+  let newReleases: Movie[];
   if (newReleasesRaw) {
     newReleases = JSON.parse(newReleasesRaw);
   } else {
@@ -56,7 +66,7 @@ export async function GET(req: Request) {
       : [];
     const thisYear = new Date().getFullYear();
     newReleases = newReleases
-      .filter((m: any) => {
+      .filter((m: Movie) => {
         const y = m.release_date ? parseInt(m.release_date.slice(0, 4)) : 0;
         return y >= thisYear - 1;
       })
@@ -70,7 +80,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const pageParam = url.searchParams.get("page");
   const pageNum = pageParam ? parseInt(pageParam) : 1;
-  let popular: any[] = [];
+  let popular: Movie[] = [];
   const popRes = await fetch(
     `${TMDB_BASE_URL}/movie/popular?language=en-US&page=${pageNum}&api_key=${TMDB_API_KEY}`
   );

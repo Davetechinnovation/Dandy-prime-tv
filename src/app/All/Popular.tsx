@@ -10,7 +10,7 @@ type Movie = {
   rating: number;
 };
 
-const PAGE_SIZE = 18;
+// PAGE_SIZE removed (was unused)
 
 const Popular = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -32,7 +32,7 @@ const Popular = () => {
       });
 
       setHasMore(pageNum < (data.totalPages || 1000) && newMovies.length > 0);
-    } catch (e) {
+    } catch {
       setHasMore(false);
     } finally {
       setLoading(false);

@@ -20,7 +20,18 @@ const ASIAN_COUNTRIES = [
 ];
 
 // General map function for both movies and TV shows
-function mapContent(item: any) {
+interface ContentItem {
+  id: number;
+  title?: string;
+  name?: string;
+  backdrop_path?: string;
+  release_date?: string;
+  first_air_date?: string;
+  vote_average?: number;
+  media_type?: string;
+}
+
+function mapContent(item: ContentItem) {
   return {
     id: item.id,
     title: item.title || item.name || "", // 'name' for TV shows
@@ -49,7 +60,7 @@ export async function GET(req: Request) {
     filters: string,
     page: number = 1
   ) => {
-    let allContent: any[] = [];
+    const allContent: ContentItem[] = [];
     for (const country of ASIAN_COUNTRIES) {
       // Fetch movies
       const movieRes = await fetch(
@@ -58,7 +69,7 @@ export async function GET(req: Request) {
       );
       const movieData = await movieRes.json();
       if (Array.isArray(movieData.results)) {
-        allContent.push(...movieData.results.map((item: any) => ({ ...item, media_type: 'movie' })));
+        allContent.push(...movieData.results.map((item: ContentItem) => ({ ...item, media_type: 'movie' })));
       }
 
       // Fetch TV shows
@@ -68,12 +79,12 @@ export async function GET(req: Request) {
       );
       const tvData = await tvRes.json();
       if (Array.isArray(tvData.results)) {
-        allContent.push(...tvData.results.map((item: any) => ({ ...item, media_type: 'tv' })));
+        allContent.push(...tvData.results.map((item: ContentItem) => ({ ...item, media_type: 'tv' })));
       }
     }
 
     // Deduplicate by id and filter out items with no image
-    const seen = new Set();
+    const seen = new Set<number>();
     return allContent.filter((m) => {
       if (seen.has(m.id) || !m.backdrop_path) return false;
       seen.add(m.id);
@@ -82,17 +93,17 @@ export async function GET(req: Request) {
   };
 
   // 1. Top Rated Asian Content (Movies & TV) - 12 random, cache 1 hour
-  let topRated: any[] = [];
+  let topRated: ContentItem[] = [];
   const cachedTopRated = await redis.get(ASIAN_TOPRATED_CACHE_KEY);
   if (cachedTopRated) {
     try {
       topRated = JSON.parse(cachedTopRated);
-    } catch (e) {
+    } catch {
       // ignore and fetch fresh
     }
   }
   if (!topRated || topRated.length === 0) {
-    let allTopRated = await fetchAndMergeContent(
+    const allTopRated = await fetchAndMergeContent(
       "vote_average.desc",
       "&vote_count.gte=50" // You might lower this if needed
     );
@@ -110,19 +121,19 @@ export async function GET(req: Request) {
   }
 
   // 2. New Released Asian Content (Movies & TV) - 12 random, from last year to this year, cache 1 hour
-  let newReleases: any[] = [];
+  let newReleases: ContentItem[] = [];
   const cachedNewReleases = await redis.get(ASIAN_NEWRELEASE_CACHE_KEY);
   if (cachedNewReleases) {
     try {
       newReleases = JSON.parse(cachedNewReleases);
-    } catch (e) {
+    } catch {
       // ignore and fetch fresh
     }
     }
   if (!newReleases || newReleases.length === 0) {
     const thisYear = new Date().getFullYear();
     const lastYear = thisYear - 1;
-    let allNewReleases = await fetchAndMergeContent(
+    const allNewReleases = await fetchAndMergeContent(
       "primary_release_date.desc", // This sorts movies by release_date and TV by first_air_date
       `&primary_release_date.gte=${lastYear}-01-01&primary_release_date.lte=${thisYear}-12-31`
     );
@@ -142,10 +153,10 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const pageParam = url.searchParams.get("page");
   const pageNum = pageParam ? parseInt(pageParam) : 1;
-  let popular: any[] = [];
+  let popular: ContentItem[] = [];
 
   // Fetch and merge for popular items. No random sort or slice here for proper pagination.
-  let allPopular = await fetchAndMergeContent("popularity.desc", "", pageNum);
+  const allPopular = await fetchAndMergeContent("popularity.desc", "", pageNum);
   popular = allPopular.map(mapContent); // Map all fetched results for the current page
 
   return NextResponse.json({

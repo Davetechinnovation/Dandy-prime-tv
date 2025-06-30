@@ -25,7 +25,7 @@ const Page = () => {
         const res = await fetch("/api/home/all");
         const data = await res.json();
         setNewReleases(data.newReleases || []);
-      } catch (e) {
+      } catch {
         setNewReleases([]);
       } finally {
         setLoading(false);
@@ -37,7 +37,9 @@ const Page = () => {
   return (
     <div>
       <div className="text-white -translate-y-10 sm:px-5 px-2 ">
-        <h2 className="sm:text-[30px] text-[23px] font-semibold py-4 ">New Released Movies</h2>
+        <h2 className="sm:text-[30px] text-[23px] font-semibold py-4 ">
+          New Released Movies
+        </h2>
         {loading ? (
           <div className="text-white text-lg py-10">Loading...</div>
         ) : (
@@ -52,7 +54,9 @@ const Page = () => {
                   className="w-full h-[25vh] rounded-t-lg object-cover"
                 />
                 <div className="border border-t-0 border-blue-700 rounded-b-lg px-2 leading-8 ">
-                  <p className="sm:text-[16px] text-[13px] truncate ">{movie.title}</p>
+                  <p className="sm:text-[16px] text-[13px] truncate ">
+                    {movie.title}
+                  </p>
                   <p className="flex items-center justify-between sm:text-[14px] text-[11px] ">
                     <span>{movie.year}</span>
                     <span className="flex items-center justify-between gap-2 ">
@@ -65,7 +69,6 @@ const Page = () => {
             ))}
           </div>
         )}
-
       </div>
       <TopRated />
       <Popular />
@@ -74,4 +77,3 @@ const Page = () => {
 };
 
 export default Page;
-   

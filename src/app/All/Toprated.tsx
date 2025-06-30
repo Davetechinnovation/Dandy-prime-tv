@@ -21,7 +21,7 @@ const TopRated = () => {
         const res = await fetch("/api/home/all");
         const data = await res.json();
         setTopRated(data.topRated || []);
-      } catch (e) {
+      } catch {
         setTopRated([]);
       } finally {
         setLoading(false);

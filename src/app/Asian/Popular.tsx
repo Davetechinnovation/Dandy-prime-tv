@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useCallback } from "react";
+import React, { useRef } from "react";
 import useSWRInfinite from "swr/infinite";
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -17,7 +17,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const PAGE_SIZE = 20;
 
 const Popular = () => {
-  const { data, error, size, setSize, isValidating } = useSWRInfinite(
+  const { data, error, setSize, isValidating } = useSWRInfinite(
     (index) => `/api/home/asian?page=${index + 1}`,
     fetcher,
     {
@@ -28,7 +28,6 @@ const Popular = () => {
   const movies: Movie[] = data
     ? data.flatMap((page) => page.popular || [])
     : [];
-  const isLoading = !data && !error;
   const isReachingEnd =
     data && data[data.length - 1]?.popular?.length < PAGE_SIZE;
 

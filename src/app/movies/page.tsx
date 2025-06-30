@@ -13,7 +13,7 @@ const Nollywood = dynamic(() => import("../Nollywood/page"), { ssr: false });
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function AllTab() {
-  const { data, error, isLoading } = useSWR("/api/home/all", fetcher);
+  const { error, isLoading } = useSWR("/api/home/all", fetcher);
   if (isLoading) return <div className="text-white">Loading...</div>;
   if (error) return <div className="text-red-500">Failed to load</div>;
   // You can pass data to your All component or render here

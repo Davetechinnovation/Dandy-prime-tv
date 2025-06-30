@@ -14,7 +14,7 @@ export async function GET() {
     try {
       const heroes = JSON.parse(cached);
       return NextResponse.json(heroes);
-    } catch (e) {
+    } catch {
       // If cache is corrupted, ignore and fetch fresh
     }
   }
@@ -38,7 +38,20 @@ export async function GET() {
   }
 
   // Filter out movies with no backdrop_path (no image)
-  const filtered = data.results.filter((movie: any) => !!movie.backdrop_path);
+  interface HeroMovie {
+    id: number | string;
+    title: string;
+    backdrop_path: string | null;
+    release_date: string | null;
+    vote_average: number;
+    vote_count: number;
+    original_language: string;
+    overview: string;
+  }
+
+  const filtered = data.results.filter((movie: HeroMovie) => {
+    return !!movie.backdrop_path;
+  });
 
   // Pick 10 random movies from the filtered list (no duplicates)
   const shuffled = filtered.sort(() => 0.5 - Math.random());
@@ -58,24 +71,26 @@ export async function GET() {
         vote_average: 0,
         vote_count: 0,
         original_language: "en",
-        overview: "No description available."
-      })
+        overview: "No description available.",
+      }),
     ];
   }
 
   // Build the response array, fallback to a default image if missing
-  const heroes = selected.map((movie: any) => ({
-    id: movie.id,
-    title: movie.title,
-    image: movie.backdrop_path
-      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
-      : fallbackImage,
-    year: movie.release_date ? movie.release_date.slice(0, 4) : null,
-    rating: movie.vote_average,
-    votes: movie.vote_count,
-    language: movie.original_language,
-    description: movie.overview,
-  }));
+  const heroes = selected
+    .map((movie: HeroMovie) => ({
+      id: movie.id,
+      title: movie.title,
+      image: movie.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+        : fallbackImage,
+      year: movie.release_date ? movie.release_date.split("-")[0] : null,
+      rating: movie.vote_average,
+      votes: movie.vote_count,
+      language: movie.original_language,
+      description: movie.overview,
+    }))
+    .filter((m: HeroMovie) => m.id && m.title);
 
   // Cache in Redis
   await redis.set(HERO_CACHE_KEY, JSON.stringify(heroes), "EX", HERO_CACHE_TTL);
